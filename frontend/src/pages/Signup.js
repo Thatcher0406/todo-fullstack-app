@@ -71,7 +71,7 @@ const Signup = () => {
     try {
       setLoading(true);
       setError("");
-      await API.post("auth/signup/", {
+      await API.post("signup/", {
         username: formData.username.trim(),
         first_name: formData.first_name.trim(),
         last_name: formData.last_name.trim(),
