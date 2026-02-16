@@ -1,25 +1,23 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const TopNav = () => {
+  const { user } = useAuth();
+
+  const initial = useMemo(() => {
+    const username = user?.username || "";
+    return (username.trim()[0] || "U").toUpperCase();
+  }, [user]);
+
   return (
     <div style={{
       display: "flex",
-      justifyContent: "space-between",
+      justifyContent: "flex-end",
       alignItems: "center",
       padding: "16px",
       backgroundColor: "#F5F1E8",
       boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
     }}>
-      <input
-        type="text"
-        placeholder="Search tasks..."
-        style={{
-          padding: "8px 12px",
-          borderRadius: "12px",
-          border: "1px solid #D8D2C6",
-          width: "300px"
-        }}
-      />
       <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
         <div style={{
           width: "32px",
@@ -33,7 +31,7 @@ const TopNav = () => {
           fontWeight: "bold",
           cursor: "pointer"
         }}>
-          JW
+          {initial}
         </div>
       </div>
     </div>

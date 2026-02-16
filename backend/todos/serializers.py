@@ -6,8 +6,28 @@ from django.contrib.auth.models import User
 class TodoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Todo
-        fields = ['id', 'user', 'title', 'description', 'completed', 'created_at']
+        fields = ['id', 'user', 'title', 'description', 'status', 'priority', 'due_date', 'completed', 'created_at']
         read_only_fields = ['user', 'created_at']
+
+    def validate(self, attrs):
+        status = attrs.get('status')
+        completed = attrs.get('completed')
+        instance = getattr(self, 'instance', None)
+
+        if status is None and completed is not None:
+            if completed:
+                attrs['status'] = 'done'
+            elif instance and instance.status == 'done':
+                attrs['status'] = 'todo'
+
+        if status == 'done':
+            attrs['completed'] = True
+        elif status in ('todo', 'doing') and completed is True:
+            attrs['status'] = 'done'
+        elif status in ('todo', 'doing') and completed is None:
+            attrs['completed'] = False
+
+        return attrs
 
 # User Serializer (for signup)
 class UserSerializer(serializers.ModelSerializer):

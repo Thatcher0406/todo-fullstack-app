@@ -1,42 +1,47 @@
 import React, { useState } from "react";
-import API from "../services/api"; // Axios instance with baseURL
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import API from "../services/api";
 import AuthCard from "../components/AuthCard";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const { showToast } = useToast();
+
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (event) => {
+    setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const response = await API.post("auth/login/", {
-        username: formData.username,
+        username: formData.username.trim(),
         password: formData.password,
       });
 
-      // Save JWT in localStorage
-      localStorage.setItem("access_token", response.data.access);
-      localStorage.setItem("refresh_token", response.data.refresh);
+      await login({
+        access: response.data.access,
+        refresh: response.data.refresh,
+      });
 
-      // Optional: attach token to Axios default headers
-      API.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.access}`;
-
-      navigate("/dashboard"); // redirect to dashboard
+      showToast("Welcome back.", "info");
+      navigate("/dashboard");
     } catch (err) {
-      setError(
-        err.response?.data?.detail || "Login failed. Check username/password."
-      );
-      console.error(err);
+      const message = err.response?.data?.detail || "Login failed. Check username/password.";
+      setError(message);
+      showToast(message, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,21 +56,17 @@ const Login = () => {
       }}
     >
       <AuthCard>
-        <h2 style={{ color: "#6E2C2C", marginBottom: "24px", textAlign: "center" }}>
-          Sign In
-        </h2>
+        <h2 style={{ color: "#6E2C2C", marginBottom: "24px", textAlign: "center" }}>Sign In</h2>
 
         {error && <p style={{ color: "#8C3B3B", textAlign: "center" }}>{error}</p>}
 
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-        >
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <input
             name="username"
-            placeholder="Username or Email"
+            placeholder="Username"
             value={formData.username}
             onChange={handleChange}
+            required
           />
           <input
             name="password"
@@ -73,28 +74,28 @@ const Login = () => {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            required
           />
           <button
             type="submit"
+            disabled={loading}
             style={{
               backgroundColor: "#6E2C2C",
               color: "#F5F1E8",
               padding: "12px",
               border: "none",
               borderRadius: "12px",
-              cursor: "pointer",
+              cursor: loading ? "not-allowed" : "pointer",
               marginTop: "8px",
+              opacity: loading ? 0.7 : 1,
             }}
           >
-            Sign In
+            {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
         <p style={{ fontSize: "14px", marginTop: "12px", textAlign: "center" }}>
-          Don’t have an account?{" "}
-          <a href="/signup" style={{ color: "#5F6F52" }}>
-            Create Account
-          </a>
+          Don&apos;t have an account? <Link to="/signup" style={{ color: "#5F6F52" }}>Create Account</Link>
         </p>
       </AuthCard>
     </div>

@@ -11,3 +11,28 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+html.dark body {
+  background-color: #151515 !important;
+  color: #f3efe7 !important;
+}
+
+html.dark div {
+  color: inherit;
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #262626 !important;
+  color: #f3efe7 !important;
+  border-color: #424242 !important;
+}
+
+html.dark button {
+  filter: brightness(0.95);
+}
+
+html.dark a {
+  color: #c9d7c0 !important;
+}
