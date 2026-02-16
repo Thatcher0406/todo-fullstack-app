@@ -62,6 +62,9 @@ CORS_ALLOWED_ORIGINS = [
     "https://todo-frontend-p5nf.onrender.com",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
